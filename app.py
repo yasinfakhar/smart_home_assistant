@@ -1,11 +1,18 @@
 # app.py
 
-import streamlit as st
 from streamlit_autorefresh import st_autorefresh
+import streamlit as st
 import requests
 import os
 import base64
 from dotenv import load_dotenv
+from streamlit_autorefresh import st_autorefresh
+import logging
+
+logging.basicConfig(level=logging.INFO)
+
+
+st_autorefresh()
 
 load_dotenv()
 
@@ -35,9 +42,10 @@ def add_local_mp4_background(mp4_file: str):
             min-width: 100%;
             min-height: 100%;
             z-index: -1;
-            object-fit: cover;
+            object-fit: cover; /* Crop/cover to fill screen area. */
         }}
         </style>
+        
         <video autoplay loop muted playsinline class="background-video">
             <source src="data:video/mp4;base64,{encoded_mp4}" type="video/mp4">
         </video>
@@ -46,34 +54,20 @@ def add_local_mp4_background(mp4_file: str):
     )
 
 
-def toggle_party_mode():
+st.title("IoT Lamp Control Panel")
+
+def fetch_party_state():
+    """Return (is_on, color) by calling the Flask server."""
     url = f"http://localhost:{api_port}/party-mode"
     try:
         response = requests.get(url)
         response.raise_for_status()
         data = response.json()
-        party_mode = data.get("party_mode", False)
-        # Update the session state
-        st.session_state["party_mode"] = party_mode
-        st.success("Party mode toggled")
-        return party_mode
+        is_on = data.get("state", False)
+        return is_on
     except Exception as e:
-        st.error(f"Error toggling party mode: {e}")
+        st.error(f"Error fetching party_mode: {e}")
         return False
-
-# Initialize party_mode in session state
-if "party_mode" not in st.session_state:
-    st.session_state["party_mode"] = False
-
-st.title("IoT Lamp Control Panel")
-
-# If party mode is currently ON, embed the MP4 now
-if st.session_state["party_mode"]:
-    add_local_mp4_background("party.mp4")
-
-# Party Mode Button
-if st.button("Toggle Party Mode"):
-    toggle_party_mode()
 
 def fetch_lamp_state(lamp_id):
     """Return (is_on, color) by calling the Flask server."""
@@ -83,11 +77,10 @@ def fetch_lamp_state(lamp_id):
         response.raise_for_status()
         data = response.json()
         is_on = (data["state"] == "on")
-        color = data.get("color", "#FFFFFF")
-        return is_on, color
+        return is_on
     except Exception as e:
         st.error(f"Error fetching lamp {lamp_id}: {e}")
-        return False, "#FFFFFF"
+        return False
 
 def toggle_lamp(lamp_id, turn_on: bool):
     """Turn the lamp on or off."""
@@ -102,13 +95,21 @@ def toggle_lamp(lamp_id, turn_on: bool):
         st.error(f"Error toggling lamp {lamp_id}: {e}")
         return "#FFFFFF"
 
+party_is_on = fetch_party_state()
+if party_is_on:
+    add_local_mp4_background("party.mp4")
+
 lamp_ids = [1, 2, 3, 4]
 cols = st.columns(len(lamp_ids))
 
 for i, lamp_id in enumerate(lamp_ids):
     with cols[i]:
         st.subheader(f"Lamp {lamp_id}")
-        is_on, _ = fetch_lamp_state(lamp_id)
+
+        # Fetch current state from the server
+        is_on = fetch_lamp_state(lamp_id)
+
+        # Show an icon and on/off status
         if is_on:
             st.markdown("<h1 style='text-align: center;'>💡</h1>", unsafe_allow_html=True)
             st.write("Status: **ON**")
@@ -119,7 +120,7 @@ for i, lamp_id in enumerate(lamp_ids):
             toggle_lamp(lamp_id, not is_on)
             st.rerun()
 
-toggle_party_mode()
+# toggle_party_mode()
 
 # Just a manual refresh button to re-fetch lamp states
 if st.button("Refresh All"):
