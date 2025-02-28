@@ -1,9 +1,14 @@
+import requests
+import os
+from dotenv import load_dotenv
 import pygame
 
 
 from typing import List
-from langchain.tools import BaseTool, StructuredTool, tool
+from langchain.tools import tool
 
+load_dotenv()
+api_port = os.getenv("API_PORT")
 
 @tool
 def turn_on_lamps(device_ids: List[int]) -> bool:
@@ -16,6 +21,11 @@ def turn_on_lamps(device_ids: List[int]) -> bool:
     Returns:
         bool: True if the lamps turned on successfully, False otherwise.
     """
+    for lamp_id in device_ids:
+        url = f"http://localhost:{api_port}/lamp/{lamp_id}/on"
+        response = requests.get(url)
+        response.raise_for_status()
+
     return True
 
 
@@ -30,7 +40,10 @@ def turn_off_lamps(device_ids: List[int]) -> bool:
     Returns:
         bool: True if the lamps turned off successfully, False otherwise.
     """
-
+    for lamp_id in device_ids:
+        url = f"http://localhost:{api_port}/lamp/{lamp_id}/off"
+        response = requests.get(url)
+        response.raise_for_status()
     return True
 
 
@@ -39,6 +52,10 @@ def activate_part_mode():
     """
     Activates the part mode.
     """
+    url = f"http://localhost:{api_port}/party-mode/on"
+    response = requests.get(url)
+    response.raise_for_status()
+
     pygame.mixer.init()
     # Load the music file
     pygame.mixer.music.load("music.mp3")
@@ -51,6 +68,10 @@ def deactivate_part_mode():
     """
     Deactivates the part mode.
     """
+    url = f"http://localhost:{api_port}/party-mode/off"
+    response = requests.get(url)
+    response.raise_for_status()
+
     pygame.mixer.music.stop()
 
 
