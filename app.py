@@ -21,6 +21,7 @@ st_autorefresh(interval=5000, key="auto-refresh")
 
 api_port = os.getenv("API_PORT", 5000)
 
+
 def add_local_mp4_background(mp4_file: str):
     """
     Reads a local MP4 file, encodes it to base64,
@@ -50,11 +51,12 @@ def add_local_mp4_background(mp4_file: str):
             <source src="data:video/mp4;base64,{encoded_mp4}" type="video/mp4">
         </video>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
 
 
 st.title("IoT Lamp Control Panel")
+
 
 def fetch_party_state():
     """Return (is_on, color) by calling the Flask server."""
@@ -69,6 +71,7 @@ def fetch_party_state():
         st.error(f"Error fetching party_mode: {e}")
         return False
 
+
 def fetch_lamp_state(lamp_id):
     """Return (is_on, color) by calling the Flask server."""
     url = f"http://localhost:{api_port}/lamp/{lamp_id}"
@@ -76,11 +79,12 @@ def fetch_lamp_state(lamp_id):
         response = requests.get(url)
         response.raise_for_status()
         data = response.json()
-        is_on = (data["state"] == "on")
+        is_on = data["state"] == "on"
         return is_on
     except Exception as e:
         st.error(f"Error fetching lamp {lamp_id}: {e}")
         return False
+
 
 def toggle_lamp(lamp_id, turn_on: bool):
     """Turn the lamp on or off."""
@@ -94,6 +98,7 @@ def toggle_lamp(lamp_id, turn_on: bool):
     except Exception as e:
         st.error(f"Error toggling lamp {lamp_id}: {e}")
         return "#FFFFFF"
+
 
 party_is_on = fetch_party_state()
 if party_is_on:
@@ -111,10 +116,14 @@ for i, lamp_id in enumerate(lamp_ids):
 
         # Show an icon and on/off status
         if is_on:
-            st.markdown("<h1 style='text-align: center;'>💡</h1>", unsafe_allow_html=True)
+            st.markdown(
+                "<h1 style='text-align: center;'>💡</h1>", unsafe_allow_html=True
+            )
             st.write("Status: **ON**")
         else:
-            st.markdown("<h1 style='text-align: center;'>🔌</h1>", unsafe_allow_html=True)
+            st.markdown(
+                "<h1 style='text-align: center;'>🔌</h1>", unsafe_allow_html=True
+            )
             st.write("Status: **OFF**")
         if st.button(f"Toggle {lamp_id}"):
             toggle_lamp(lamp_id, not is_on)
