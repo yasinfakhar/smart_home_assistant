@@ -13,6 +13,7 @@ lamp_states = {
     3: {"is_on": False},
     4: {"is_on": False},
 }
+party_state = False 
 
 @app.route("/lamp/<int:lamp_id>/on", methods=["GET"])
 def lamp_on(lamp_id):
@@ -47,12 +48,36 @@ def get_lamp(lamp_id):
     else:
         return jsonify({"error": "Invalid lamp id"}), 404
 
-# New endpoint: toggles all lamps at once (on->off, off->on).
 @app.route("/party-mode", methods=["GET"])
 def party_mode():
-    for lamp_id in lamp_states:
-        lamp_states[lamp_id]["is_on"] = not lamp_states[lamp_id]["is_on"]
-    return jsonify({"message": "Party mode toggled all lamps!"}), 200
+    return jsonify(
+        {
+            "state": party_state,
+        }
+    ), 200
+
+@app.route("/party-mode/on", methods=["GET"])
+def party_mode_on():
+    global party_state
+    party_state = True
+    return jsonify(
+        {
+            "message": "Party mode turned on!",
+            "state": party_state,
+        }
+    ), 200
+
+@app.route("/party-mode/off", methods=["GET"])
+def party_mode_off():
+    global party_state
+    party_state = False
+    return jsonify(
+        {
+            "message": "Party mode turned off!",
+            "state": party_state,
+        }
+    ), 200
+
 
 if __name__ == "__main__":
     port = int(os.getenv("API_PORT", 5000))

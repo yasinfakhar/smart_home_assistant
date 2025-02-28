@@ -3,6 +3,13 @@ import requests
 import os
 import base64
 from dotenv import load_dotenv
+from streamlit_autorefresh import st_autorefresh
+import logging
+
+logging.basicConfig(level=logging.INFO)
+
+
+st_autorefresh()
 
 load_dotenv()
 
@@ -47,9 +54,22 @@ st.title("IoT Lamp Control Panel")
 # --- Party Mode Checkbox ---
 party_mode = st.checkbox("Party Mode")
 if party_mode:
-    add_local_mp4_background("party.mp4")  # Adjust filename/path if needed
+    add_local_mp4_background("party.mp4")
 
 api_port = os.getenv("API_PORT", 5000)
+
+def fetch_party_state():
+    """Return (is_on, color) by calling the Flask server."""
+    url = f"http://localhost:{api_port}/party-mode"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        is_on = data.get("state", False)
+        return is_on
+    except Exception as e:
+        st.error(f"Error fetching party_mode: {e}")
+        return False
 
 def fetch_lamp_state(lamp_id):
     """Return (is_on, color) by calling the Flask server."""
@@ -59,11 +79,10 @@ def fetch_lamp_state(lamp_id):
         response.raise_for_status()
         data = response.json()
         is_on = (data["state"] == "on")
-        color = data.get("color", "#FFFFFF")
-        return is_on, color
+        return is_on
     except Exception as e:
         st.error(f"Error fetching lamp {lamp_id}: {e}")
-        return False, "#FFFFFF"
+        return False
 
 def toggle_lamp(lamp_id, turn_on: bool):
     """Turn the lamp on or off, returning the new color."""
@@ -78,6 +97,10 @@ def toggle_lamp(lamp_id, turn_on: bool):
         st.error(f"Error toggling lamp {lamp_id}: {e}")
         return "#FFFFFF"
 
+party_is_on = fetch_party_state()
+if party_is_on:
+    add_local_mp4_background("party.mp4")
+
 lamp_ids = [1, 2, 3, 4]
 
 cols = st.columns(len(lamp_ids))
@@ -86,7 +109,7 @@ for i, lamp_id in enumerate(lamp_ids):
         st.subheader(f"Lamp {lamp_id}")
 
         # Fetch current state from the server
-        is_on, _ = fetch_lamp_state(lamp_id)
+        is_on = fetch_lamp_state(lamp_id)
 
         # Show an icon and on/off status
         if is_on:
