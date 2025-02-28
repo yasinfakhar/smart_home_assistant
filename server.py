@@ -15,8 +15,6 @@ lamp_states = {
 }
 party_state = False 
 
-# Global flag for party mode
-party_mode_enabled = False
 
 @app.route("/lamp/<int:lamp_id>/on", methods=["GET"])
 def lamp_on(lamp_id):
