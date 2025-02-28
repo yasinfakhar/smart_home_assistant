@@ -54,33 +54,7 @@ def add_local_mp4_background(mp4_file: str):
     )
 
 
-# def toggle_party_mode():
-#     url = f"http://localhost:{api_port}/party-mode"
-#     try:
-#         response = requests.get(url)
-#         response.raise_for_status()
-#         data = response.json()
-#         party_mode = data.get("party_mode", False)
-#         # Update the session state
-#         st.session_state["party_mode"] = party_mode
-#         st.success("Party mode toggled")
-#         return party_mode
-#     except Exception as e:
-#         st.error(f"Error toggling party mode: {e}")
-#         return False
-
-# Initialize party_mode in session state
-# if "party_mode" not in st.session_state:
-#     st.session_state["party_mode"] = False
-
 st.title("IoT Lamp Control Panel")
-
-# --- Party Mode Checkbox ---
-# party_mode = st.checkbox("Party Mode")
-# st.session_state["party_mode"] = party_mode
-# if party_mode:
-#     add_local_mp4_background("party.mp4")
-
 
 def fetch_party_state():
     """Return (is_on, color) by calling the Flask server."""
