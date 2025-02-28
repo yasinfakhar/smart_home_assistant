@@ -1,7 +1,7 @@
 # app.py
 
-import streamlit as st
 from streamlit_autorefresh import st_autorefresh
+import streamlit as st
 import requests
 import os
 import base64
@@ -35,9 +35,10 @@ def add_local_mp4_background(mp4_file: str):
             min-width: 100%;
             min-height: 100%;
             z-index: -1;
-            object-fit: cover;
+            object-fit: cover; /* Crop/cover to fill screen area. */
         }}
         </style>
+        
         <video autoplay loop muted playsinline class="background-video">
             <source src="data:video/mp4;base64,{encoded_mp4}" type="video/mp4">
         </video>
