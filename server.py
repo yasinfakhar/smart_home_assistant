@@ -13,6 +13,7 @@ lamp_states = {
     3: {"is_on": False},
     4: {"is_on": False},
 }
+party_state = False 
 
 # Global flag for party mode
 party_mode_enabled = False
@@ -50,38 +51,36 @@ def get_lamp(lamp_id):
     else:
         return jsonify({"error": "Invalid lamp id"}), 404
 
-# Endpoint to toggle party mode (no longer toggles the lamps)
 @app.route("/party-mode", methods=["GET"])
 def party_mode():
-    global party_mode_enabled
-    # Toggle the party mode flag
-
-    return jsonify({
-        "message": "Party mode toggled",
-        "party_mode": party_mode_enabled
-    }), 200
-
-@app.route("/party-mode/off", methods=["GET"])
-def party_mode_off():
-    global party_mode_enabled
-
-    party_mode_enabled = False
-
-    return jsonify({
-        "message": "Party mode toggled",
-        "party_mode": party_mode_enabled
-    }), 200
+    return jsonify(
+        {
+            "state": party_state,
+        }
+    ), 200
 
 @app.route("/party-mode/on", methods=["GET"])
 def party_mode_on():
-    global party_mode_enabled
+    global party_state
+    party_state = True
+    return jsonify(
+        {
+            "message": "Party mode turned on!",
+            "state": party_state,
+        }
+    ), 200
 
-    party_mode_enabled = True
+@app.route("/party-mode/off", methods=["GET"])
+def party_mode_off():
+    global party_state
+    party_state = False
+    return jsonify(
+        {
+            "message": "Party mode turned off!",
+            "state": party_state,
+        }
+    ), 200
 
-    return jsonify({
-        "message": "Party mode toggled",
-        "party_mode": party_mode_enabled
-    }), 200
 
 if __name__ == "__main__":
     port = int(os.getenv("API_PORT", 5000))
