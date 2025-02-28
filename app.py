@@ -75,7 +75,7 @@ if st.session_state["party_mode"]:
 if st.button("Toggle Party Mode"):
     toggle_party_mode()
 
-def fetch_lamp_state(lamp_id):
+def fetch_lamp_state(lamp_id: int) -> bool:
     """Return (is_on, color) by calling the Flask server."""
     url = f"http://localhost:{api_port}/lamp/{lamp_id}"
     try:
@@ -83,24 +83,20 @@ def fetch_lamp_state(lamp_id):
         response.raise_for_status()
         data = response.json()
         is_on = (data["state"] == "on")
-        color = data.get("color", "#FFFFFF")
-        return is_on, color
+        return is_on
     except Exception as e:
         st.error(f"Error fetching lamp {lamp_id}: {e}")
-        return False, "#FFFFFF"
+        return False
 
-def toggle_lamp(lamp_id, turn_on: bool):
+def toggle_lamp(lamp_id, turn_on: bool) -> None:
     """Turn the lamp on or off."""
     action = "on" if turn_on else "off"
     url = f"http://localhost:{api_port}/lamp/{lamp_id}/{action}"
     try:
         response = requests.get(url)
         response.raise_for_status()
-        data = response.json()
-        return data.get("color", "#FFFFFF")
     except Exception as e:
         st.error(f"Error toggling lamp {lamp_id}: {e}")
-        return "#FFFFFF"
 
 lamp_ids = [1, 2, 3, 4]
 cols = st.columns(len(lamp_ids))
@@ -108,7 +104,7 @@ cols = st.columns(len(lamp_ids))
 for i, lamp_id in enumerate(lamp_ids):
     with cols[i]:
         st.subheader(f"Lamp {lamp_id}")
-        is_on, _ = fetch_lamp_state(lamp_id)
+        is_on = fetch_lamp_state(lamp_id)
         if is_on:
             st.markdown("<h1 style='text-align: center;'>💡</h1>", unsafe_allow_html=True)
             st.write("Status: **ON**")
