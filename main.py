@@ -23,17 +23,20 @@ tools = get_iot_functions()
 # prompt = hub.pull("hwchase17/openai-functions-agent")
 
 system_message = SystemMessagePromptTemplate.from_template(
-    "You are a helpful assistant")
+    "You are a helpful assistant"
+)
 human_message = HumanMessagePromptTemplate.from_template("{input}")
 chat_history_placeholder = MessagesPlaceholder(variable_name="chat_history")
 agent_scratchpad = MessagesPlaceholder(variable_name="agent_scratchpad")
 
-prompt = ChatPromptTemplate.from_messages([
-    system_message,
-    chat_history_placeholder,
-    human_message,
-    agent_scratchpad,
-])
+prompt = ChatPromptTemplate.from_messages(
+    [
+        system_message,
+        chat_history_placeholder,
+        human_message,
+        agent_scratchpad,
+    ]
+)
 
 agent = create_openai_functions_agent(llm, tools, prompt)
 
@@ -49,10 +52,12 @@ agent_with_chat_history = RunnableWithMessageHistory(
 )
 
 while True:
-    user_input = input('prompt: ')
+    user_input = input("prompt: ")
     if user_input == "q":
         exit(0)
     else:
-        result = agent_with_chat_history.invoke({"input": user_input},
-                                                config={"configurable": {"session_id": "_"}},)
+        result = agent_with_chat_history.invoke(
+            {"input": user_input},
+            config={"configurable": {"session_id": "_"}},
+        )
         print(result)

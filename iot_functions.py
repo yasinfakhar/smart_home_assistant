@@ -10,6 +10,7 @@ from langchain.tools import tool
 load_dotenv()
 api_port = os.getenv("API_PORT")
 
+
 @tool
 def turn_on_lamps(device_ids: List[int]) -> bool:
     """
