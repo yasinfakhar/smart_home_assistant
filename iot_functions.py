@@ -1,3 +1,5 @@
+import logging
+
 import requests
 import os
 from dotenv import load_dotenv
@@ -23,6 +25,10 @@ def turn_on_lamps(device_ids: List[int]) -> bool:
         bool: True if the lamps turned on successfully, False otherwise.
     """
     for lamp_id in device_ids:
+        if lamp_id < 0 or lamp_id > 4:
+            logging.error("Lamps 1 to 4 is just available!")
+            break
+
         url = f"http://localhost:{api_port}/lamp/{lamp_id}/on"
         response = requests.get(url)
         response.raise_for_status()
@@ -42,6 +48,10 @@ def turn_off_lamps(device_ids: List[int]) -> bool:
         bool: True if the lamps turned off successfully, False otherwise.
     """
     for lamp_id in device_ids:
+        if lamp_id < 0 or lamp_id > 4:
+            logging.error("Lamps 1 to 4 is just available!")
+            break
+
         url = f"http://localhost:{api_port}/lamp/{lamp_id}/off"
         response = requests.get(url)
         response.raise_for_status()
@@ -76,5 +86,40 @@ def deactivate_part_mode():
     pygame.mixer.music.stop()
 
 
+@tool
+def activate_pray_mode():
+    """
+    Activates the part mode.
+    """
+    url = f"http://localhost:{api_port}/pray-mode/on"
+    response = requests.get(url)
+    response.raise_for_status()
+
+    pygame.mixer.init()
+    # Load the music file
+    pygame.mixer.music.load("eftari.mp3")
+    # Play the music indefinitely (-1 indicates infinite loop)
+    pygame.mixer.music.play(-1)
+
+
+@tool
+def deactivate_pray_mode():
+    """
+    Deactivates the part mode.
+    """
+    url = f"http://localhost:{api_port}/pray-mode/off"
+    response = requests.get(url)
+    response.raise_for_status()
+
+    pygame.mixer.music.stop()
+
+
 def get_iot_functions():
-    return [turn_off_lamps, turn_on_lamps, activate_part_mode, deactivate_part_mode]
+    return [
+        turn_off_lamps,
+        turn_on_lamps,
+        activate_part_mode,
+        deactivate_part_mode,
+        activate_pray_mode,
+        deactivate_pray_mode,
+    ]

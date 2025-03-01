@@ -72,6 +72,20 @@ def fetch_party_state():
         return False
 
 
+def fetch_pray_state():
+    """Return (is_on, color) by calling the Flask server."""
+    url = f"http://localhost:{api_port}/pray-mode"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        is_on = data.get("state", False)
+        return is_on
+    except Exception as e:
+        st.error(f"Error fetching party_mode: {e}")
+        return False
+
+
 def fetch_lamp_state(lamp_id):
     """Return (is_on, color) by calling the Flask server."""
     url = f"http://localhost:{api_port}/lamp/{lamp_id}"

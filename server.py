@@ -14,6 +14,7 @@ lamp_states = {
     4: {"is_on": False},
 }
 party_state = False
+pray_state = False
 
 
 @app.route("/lamp/<int:lamp_id>/on", methods=["GET"])
@@ -79,6 +80,36 @@ def party_mode_off():
             {
                 "message": "Party mode turned off!",
                 "state": party_state,
+            }
+        ),
+        200,
+    )
+
+
+@app.route("/pray-mode/on", methods=["GET"])
+def pray_mode_on():
+    global pray_state
+    pray_state = True
+    return (
+        jsonify(
+            {
+                "message": "Pray mode turned on!",
+                "state": pray_state,
+            }
+        ),
+        200,
+    )
+
+
+@app.route("/pray-mode/off", methods=["GET"])
+def pray_mode_off():
+    global pray_state
+    pray_state = False
+    return (
+        jsonify(
+            {
+                "message": "Pray mode turned off!",
+                "state": pray_state,
             }
         ),
         200,
