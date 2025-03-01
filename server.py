@@ -56,6 +56,18 @@ def party_mode():
     )
 
 
+@app.route("/pray-mode", methods=["GET"])
+def pray_mode():
+    return (
+        jsonify(
+            {
+                "state": pray_state,
+            }
+        ),
+        200,
+    )
+
+
 @app.route("/party-mode/on", methods=["GET"])
 def party_mode_on():
     global party_state

@@ -116,7 +116,11 @@ def toggle_lamp(lamp_id, turn_on: bool):
 
 party_is_on = fetch_party_state()
 if party_is_on:
-    add_local_mp4_background("party.mp4")
+    add_local_mp4_background("ramadan.mp4")
+
+pray_mode = fetch_pray_state()
+if pray_mode:
+    add_local_mp4_background("ramadan.mp4")
 
 lamp_ids = [1, 2, 3, 4]
 cols = st.columns(len(lamp_ids))

@@ -4,4 +4,5 @@ venv/*
 main.ipynb
 *.pyc
 __pycache__/*
-eftari.mp3
+*.mp3
+*.mp4
